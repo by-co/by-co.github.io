@@ -1,0 +1,48 @@
+body {
+    background-color: #fff;
+    padding: 80px;
+    font: normal 16px "Karla", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #333;
+
+}
+a {
+    text-decoration: none;
+}
+header {
+    position: relative;
+    border-bottom: 1px solid #ddd;
+}
+footer {
+    border-top: 1px solid #ddd;
+    color: #aaa;
+    font-family: "Lora", Georgia, serif;
+}
+#name {
+    font: 30px "Lora", Georgia, serif;
+    margin-bottom: 20px;
+}
+#printable {
+/*  delete for PDF button */
+    display: none;
+    position: absolute;
+    top: 4px;
+    right: 0;
+    color: white;
+    background-color: #aaa;
+    border-radius: 2px;
+    padding: 4px 7px;
+}
+#printable:hover {
+    background-color: #777;
+}
+h1 {
+    font: normal 24px "Lora", Georgia, serif;
+    line-height: normal;
+}
+h2 {
+    font: bold 20px "Karla", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+h3 {
+    font: normal 16px "Karla", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    text-transform: uppercase;
+}
