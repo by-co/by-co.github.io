@@ -35,7 +35,6 @@ footer {
     margin-right: 10px;
 }
 #printable {
-    display: none;
     position: absolute;
     top: 5px;
     right: 0;
