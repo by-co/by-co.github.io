@@ -10,7 +10,7 @@ body {
 a {
     text-decoration: none;
     font-weight: bold;
-    color: #c59ca0;
+    color: #dab;
 }
 a:hover {
     text-decoration: underline;
@@ -41,7 +41,7 @@ footer {
     top: 5px;
     right: 0;
     color: white;
-    background-color: #c59ca0;
+    background-color: #dab;
     border-radius: 2px;
     padding: 4px 7px;
 }
