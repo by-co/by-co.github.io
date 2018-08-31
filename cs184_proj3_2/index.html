@@ -1,0 +1,288 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+  <link rel="stylesheet" type="text/css" href="styles.css">
+  <title>CS 184 Project 3-2: Materials & Light</title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600|Muli" rel="stylesheet">
+</head>
+
+
+<body>
+  <div class="title" style="min-width: 460px; display: flex; flex-direction: column; align-items: center; margin: 0px auto; text-align: center">
+    <div class="subtitle">CS 184: Computer Graphics & Imaging</div>
+    <h1 style="font-size: 1.5em">Project 3-2: Materials & Light</h1>
+    <div class="subtitle">Barbara Yang, cs184-abg</div>
+  </div>
+  <br><br>
+
+  <h2 align="middle">Documentation</h2>
+  <div>
+    <h3 align="middle">Part 1: Mirror and Glass Materials</h3>
+    <!-- Approach -->
+    <h4> Implementaion </h4>
+    <p> To write the BRDF for mirror and glass materials, I relied on the physical properties of how mirror and glass reflect light. For <b>mirror</b> materials, I assumed that the surface was perfectly specular and would only reflect light at one outgoing
+      direction for an incident direction. Mirror materials do not lose any light, so I also counteracted the cosine falloff in <code>MirrorBSDF::sample_f</code>.
+    </p>
+    <p>
+      For <b>glass</b> materials, I had to implement <b>refraction</b> in <code>BSDF::refract()</code> first. I used <b>Snell's Law</b> to refract an incoming direction <code>wo</code>, checking for <b>total internal refraction</b> also. In glass, light
+      will both reflect AND refract, so I used <b>Schlick's approximation</b> to find the probablility of one or the other.
+    </p>
+    <!-- Show a sequence of six images of scene CBspheres.dae rendered with max_ray_depth set to 0, 1, 2, 3, 4, 5, and 100. The other settings should be at least 64 samples per pixel and 4 samples per light. Point out the new multibounce effects that appear in each image. -->
+    <h4>Varying <code>max_ray_depth</code></h4>
+    <p> CBspheres.dae rendered with different maximum ray depths, 256 samples/pixel and 4 samples/light. </p>
+    <div class="flex_row wrap">
+      <div class="img img_m"><img src="images/CBspheres_m0.png" width="100%" />
+        <p class="img_caption">m = 0. Only direct lighting. Mirror & glass surfaces not illuminated.</p>
+      </div>
+      <div class="img img_m"><img src="images/CBspheres_m1.png" width="100%" />
+        <p class="img_caption">m = 1. Mirror surface visible, glass is dark (multiple bounces needed to reach camera).</p>
+      </div>
+      <div class="img img_m"><img src="images/CBspheres_m2.png" width="100%" />
+        <p class="img_caption">m = 2. Two bounces allow light to refract inside glass sphere and to camera.</p>
+      </div>
+      <div class="img img_m"><img src="images/CBspheres_m3.png" width="100%" />
+        <p class="img_caption">m = 3. Light focused under glass sphere; reflection of glass sphere in mirror sphere.</p>
+      </div>
+      <div class="img img_m"><img src="images/CBspheres_m4.png" width="100%" />
+        <p class="img_caption">m = 4. Reflection of focused light in mirror sphere.</p>
+      </div>
+      <div class="img img_m"><img src="images/CBspheres_m5.png" width="100%" />
+        <p class="img_caption">m = 5. No major changes, slightly less noise.</p>
+      </div>
+      <div class="img img_m"><img src="images/CBspheres_m100.png" width="100%" />
+        <p class="img_caption">m = 100. At extremely high ray depth, no changes because light has converged.</p>
+      </div>
+    </div>
+  </div>
+  <div>
+    <h3 align="middle">Part 2: Microfacet Material</h3>
+    <h4> Implementation </h4>
+    <p> The actual implementation involved more math than I understand, but luckily the equations were provided. I sampled the <b>altitude</b> <code>theta_h</code> and <b>azimuth</b> <code>phi_h</code> according to their respective probability density functions
+      (equations provided). Then, I obtained the bisector aka half-vector <code>h</code> by transforming these spherical coordinates to cartesian coordinates. Finally, I calculated the incident direction <code>wi</code> by reflection the outgoing direction
+      <code>wo</code> over <code>h</code>.
+    </p>
+    <!-- Show a sequence of 4 images of scene CBdragon_microfacet_au.dae rendered with α set to 0.005, 0.05, 0.25 and 0.5. The other settings should be at least 128 samples per pixel and 1 samples per light. The number of bounces should be at least 5. Describe the differences between different images. Note that, to change the α, just open the .dae file and search for microfacet. -->
+    <h4> Macro Surface Roughness</h4>
+    <p> Comparison of <code>CBdragon_microfacet_au.dae</code> rendered with 128 samples/pixel, 1 sample/light, 5 maximum ray bounces, and varying values of <code>alpha</code>.</p>
+    <p> <code>alpha</code> determines the roughness of the macro surface. Large values of <code>alpha</code> result in a rougher, slightly diffuse surface; smaller values of <code>alpha</code> result in a smoother, almost glossy surface. With smaller values
+      of <code>alpha</code>, the surface is smooth to the point of being reflective. The colors of the red and blue walls are reflected by the surface. A side effect of of the smaller <code>alpha</code> values is extra noise throughout the image.</p>
+    <div class="flex_row wrap">
+      <div class="img"><img src="images/CBdragon_5.png" width="100%" />
+        <p class="img_caption"><code>alpha = 0.5</code></p>
+      </div>
+      <div class="img"><img src="images/CBdragon_25.png" width="100%" />
+        <p class="img_caption"><code>alpha = 0.25</code></p>
+      </div>
+      <div class="img"><img src="images/CBdragon_05.png" width="100%" />
+        <p class="img_caption"><code>alpha = 0.05</code></p>
+      </div>
+      <div class="img"><img src="images/CBdragon_005.png" width="100%" />
+        <p class="img_caption"><code>alpha = 0.005</code></p>
+      </div>
+    </div>
+    <h4> Cosine Hemisphere vs. Importance Sampling </h4>
+    <p> Comparison of <code>CBbunny_microfacet_cu.dae</code> rendered with 64 samples/pixel, 1 sample/light, 5 maximum ray bounces and varying sampling methods. </p>
+    <!-- Show two images of scene CBbunny_microfacet_cu.dae rendered using cosine hemisphere sampling (default) and your importance sampling. The sampling rate should be fixed at 64 samples per pixel and 1 samples per light. The number of bounces should be at least 5. Briefly discuss their difference. -->
+    <div class="flex_row wrap">
+      <div class="img"><img src="images/CBbunny_cosine_s64.png" width="100%" />
+        <p class="img_caption">using cosine hemisphere sampling</p>
+      </div>
+      <div class="img"><img src="images/CBbunny_importance_s64.png" width="100%" />
+        <p class="img_caption">using importance sampling</p>
+      </div>
+    </div>
+    <p><b>Cosine hemisphere sampling</b> is great for sampling diffuse materials, but not for microfacet surfaces like the surface of this copper bunny. Although it still kind of works, it takes many samples to converge. At <code>s = 64</code>, there aren't
+      enough samples to get good lighting, resulting in a noisy image. Instead, it is preferable to use <b>importance sampling</b>. Using the same amount of samples, importance sampling converges values and creates a much more smooth surface. This is
+      because it samples using the shape of the Beckmann distribution. The Beckmann distribution is one possible <b>normal distribution function</b>, or NDF, which is a function that determines the distribution of surface normals.
+
+    </p>
+    <!-- Show at least one image with some other conductor material, replacing eta and k. Note that you should look up values for real data rather than modifying them arbitrarily. Tell us what kind of material your parameters correspond to. -->
+    <h4> Other Materials </h4>
+    <p> <code>CBbunny_microfacet_cu.dae</code> rendered with 128 samples/pixel, 1 sample/light, 5 maximum ray bounces and varying values of <code>eta</code> and <code>k</code> to simulate different materials. </p>
+    <div class="flex_row wrap">
+      <div class="img"><img src="images/CBbunny_ti.png" width="100%" />
+        <p class="img_caption">Titanium (Ti)<br/><code>eta</code> = (2.6640 2.5400 2.3075),
+          <code>k</code> = (3.7080 3.4300 3.0850)</p>
+      </div>
+      <div class="img"><img src="images/CBbunny_pt.png" width="100%" />
+        <p class="img_caption">Platinum (Pt)<br/><code>eta</code> = (0.46138 0.46608 58870),
+          <code>k</code> = (5.9022 5.0942 3.9742)</p>
+      </div>
+    </div>
+    <p>
+      The <b>optical constants</b> of different organic and inorganic materials are available in databases <a href="https://refractiveindex.info/">online</a>. In my program, I used values of <code>eta</code> and <code>k</code> to approximate the reflective
+      properties of the gold and copper materials above. By finding these constants at wavelengths 614 nm (red), 549 nm (green) and 466 nm (blue), I can render any material.
+    </p>
+  </div>
+  <div>
+    <h3 align="middle">Part 3: Environment Light</h3>
+    <h4> Implementation </h4>
+    <p>
+      Instead of using a patch of pure white light to illuminate a scene, it is more "realistic" to use colors from a varied environment. I implemented environment map lighting by simulating the light from infinitely far away. In my previously implemented functions
+      <code>est_radiance_global_illumination</code> and <code>at_least_one_bounce_radiance</code>, I added the case to sample from an <code>envLight</code> variable which contained data from a <code>.exf</code> file.
+    </p>
+    <p>
+      To sample from an environment map, I started by using <code>uniform sampling</code>, which generated a random spherical direction which I converted into a cartesian coordinate to sample from <code>envLight</code>. Then, I replaced this approach
+      with <code>importance sampling</code>, which biases sampling towards the directions that provided the most radiance. I did this by computing the cumulative conditional distributions with the <b>inversion method</b> to find a point <code>(x, y)</code>.
+    </p>
+    <h4> Images </h4>
+    <!-- Show the probability_debug.png file for the .exr file you are using, generated using the save_probability_debug() helper function after initializing your probability distributions. -->
+    <p> This is the <code>probability_debug.png</code> file for <code>grace.exr</code>.</p>
+    <div class="flex_row wrap">
+      <div class="img"><img src="images/probability_debug_grace.png" width="100%" />
+        <p class="img_caption">probability visualization for grace.exr<br/></p>
+      </div>
+    </div>
+    <!-- Use the bunny_unlit.dae scene and your environment map .exr file and render two pictures, one with uniform sampling and one with importance sampling. Use 4 samples per pixel and 64 samples per light in each. Compare noise levels. -->
+    <p> Comparison of <code>bunny_unlit.dae</code> and <code>bunny_microfacet_cu.dae</code>, illuminated with environment light from <code>grace.exf</code> using either <b>importance</b> or <b>uniform</b> sampling. Rendered with 4 samples/pixel and 64 samples
+      light.
+    </p>
+    <div class="flex_row wrap">
+      <div class="img"><img src="images/bunny_microfacet_importance.png" width="100%" />
+        <p class="img_caption">microfacet surface, importance sampling</p>
+      </div>
+      <div class="img"><img src="images/bunny_microfacet_uniform.png" width="100%" />
+        <p class="img_caption">microfacet surface, uniform sampling</p>
+      </div>
+      <p>
+        On the <b>microfacet</b> surface, the importance sampling gives better shadows especially around the pedestal. There is a similar glittery noise across both sampling types so there might be something wrong with my code. Specifically there is an
+        issue with the cast shadows here, there seems to be a lot of brightness where it should be dark.
+      </p>
+      <div class="img"><img src="images/bunny_unlit_importance.png" width="100%" />
+        <p class="img_caption">unlit surface, importance sampling</p>
+      </div>
+      <div class="img"><img src="images/bunny_unlit_uniform.png" width="100%" />
+        <p class="img_caption">unlit surface, uniform sampling</p>
+      </div>
+      <p>
+        On the <b>unlit</b> surface, the noise level is similar, although the importance sampling render is darker. Without microfacets there might be no benefit to importance sample over uniform sampling.
+      </p>
+    </div>
+    <!-- Use the bunny_microfacet_cu_unlit.dae and your environment map .exr file and render two pictures, one with uniform sampling and one with importance sampling. Use 4 samples per pixel and 64 samples per light in each. Compare noise levels. -->
+  </div>
+  <div>
+    <h3 align="middle">Part 4: Depth of Field</h3>
+    <h4> Implementation </h4>
+    <p>
+      For a breath of fresh air from sampling methods -- probability was never my forte. But photography is! I really enjoyed playing with the camera settings to adjust the <code>depth of field</code> renders in this section. To implement this, I simulated
+      the refractive properties of an ideal <b>thin lens</b> to bend rays onto a <b>focal plane</b>. I sampled a point <code>pLens</code> on the thin lens and found its intersection with the focal plane at <code>pFocus</code>.
+    </p>
+    <!-- Show a "focus stack" where you focus at 4 visibly different depths through a scene. -->
+    <h4> Focus Stack </h4>
+    <p> <code>CBdragon.dae</code> focused at 4 different depths with a fixed aperature setting of <code>0.1</code>, creating a <b>pull focus</b> effect by maintaing the same size <b>depth of field</b> across different points in z-space or depth. Rendered
+      with 254 samples/pixel, 4 samples/light, 8 maximum ray bounces.</p>
+    <div class="flex_row">
+      <div class="img"><img src="images/part4_focus.gif" width="100%" />
+        <p class="img_caption">Pull focus effect on CBdragon.dae at varying focus depths</p>
+      </div>
+      <div style="display: flex; width: 50%" class="wrap">
+        <div class="img img_s"><img src="images/part4_focus_1.png" width="100%" />
+          <p style="margin-top: 0px" class="img_caption">focus depth = 1.6</p>
+        </div>
+        <div class="img img_s"><img src="images/part4_focus_2.png" width="100%" />
+          <p style="margin-top: 0px" class="img_caption">focus depth = 1.8</p>
+        </div>
+        <div class="img img_s"><img src="images/part4_focus_3.png" width="100%" />
+          <p style="margin-top: 0px" class="img_caption">focus depth = 2.0</p>
+        </div>
+        <div class="img img_s"><img src="images/part4_focus_4.png" width="100%" />
+          <p style="margin-top: 0px" class="img_caption">focus depth = 2.2</p>
+        </div>
+      </div>
+    </div>
+    <!-- Show a sequence of 4 pictures with visibly different aperture sizes, all focused at the same point in a scene. -->
+    <h4> Varying Aperature </h4>
+    <p> <code>CBdragon.dae</code> focused at 4 different aperatures with a fixed depth setting of <code>1.7</code>, creating a <b>focusing</b> effect. Smaller aperatures result in larger depths of field, while larger aperatures create a shallow or small depth
+      of field. Rendered with 254 samples/pixel, 4 samples/light, 8 maximum ray bounces.</p>
+    <div class="flex_row">
+      <div class="img"><img src="images/part4_aperature.gif" width="100%" />
+        <p class="img_caption">Coming into focus effect on CBdragon.dae at varying aperatures</p>
+      </div>
+      <div style="display: flex; width: 50%" class="wrap">
+        <div class="img img_s"><img src="images/part4_aperature_1.png" width="100%" />
+          <p style="margin-top: 0px" class="img_caption">aperature = 0.4</p>
+        </div>
+        <div class="img img_s"><img src="images/part4_aperature_2.png" width="100%" />
+          <p style="margin-top: 0px" class="img_caption">aperature = 0.2</p>
+        </div>
+        <div class="img img_s"><img src="images/part4_aperature_3.png" width="100%" />
+          <p style="margin-top: 0px" class="img_caption">aperature = 0.1</p>
+        </div>
+        <div class="img img_s"><img src="images/part4_aperature_4.png" width="100%" />
+          <p style="margin-top: 0px" class="img_caption">aperature = 0.05</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <h3 align="middle">Part 5: Shading</h3>
+    <!-- Copy the production gl directory to your docs directory. Make sure there is an anchor to gl/index.html somewhere in your writeup. -->
+    <a href="gl/index.html"><h4>GLSL shader</h4></a>
+    <!-- Briefly explain in your own words what is a shader program and how vertex and fragment shaders work together to create lighting and material effects. -->
+    <p>
+      A shader program is a parallelized program that runs on the GPU. This allows it to be much faster and do things in real time. Vertex shaders control shape while fragment shaders can add color. Combined together these can create lighting effects by controlling
+      shadow and light, as well as texture effects by raising the surface of an object.
+    </p>
+    <!-- Explain the Blinn-Phong shading model in your own words. Show a screen shot of your Blinn-Phong shader outputting only the ambient component, a screen shot only outputting the diffuse component, a screen shot only outputting the specular component, and one using the entire Blinn-Phong model. -->
+    <h4>Blinn-Phong Shading</h4>
+    <p>
+      The Blinn-Phong shading model combines ambient, diffuse, and specular lighting to create a realistic result. Ambient lighting is the "everything else" light that prevents unrealistic lighting like pitch darkness, which never happens because there is always
+      light from somewhere, even starlight.
+    </p>
+    <div class="flex_row wrap">
+      <div class="img"><img src="images/part5_ambient.png" width="100%" />
+        <p class="img_caption">ambient only</p>
+      </div>
+      <div class="img"><img src="images/part5_diffuse.png" width="100%" />
+        <p class="img_caption">diffuse only</p>
+      </div>
+      <div class="img"><img src="images/part5_specular.png" width="100%" />
+        <p class="img_caption">specular only</p>
+      </div>
+      <div class="img"><img src="images/part5_combined.png" width="100%" />
+        <p class="img_caption">ambient + diffuse + specular</p>
+      </div>
+    </div>
+    <p> Any image can be a texture -- even a screenshot of the course website. </p>
+    <!-- Show a screenshot of your texture mapping shader using your own custom texture by modifying src/renderers/t3-renderer. -->
+    <div class="flex_row wrap">
+      <div class="img"><img src="images/part5_texture.png" width="100%" />
+        <p class="img_caption">course website as a texture</p>
+      </div>
+    </div>
+    <!-- Show a screenshot of bump mapping and displacement mapping using the same texture for both renders. You can either provide your own texture or use one of the ones in the textures directory, BUT choose one that's not the default displacement2.png. -->
+    <h4> Bump and Displacement Mapping</h4>
+    <div class="flex_row wrap">
+      <div class="img"><img src="images/part5_bump.png" width="100%" />
+        <p class="img_caption">bump mapping</p>
+      </div>
+      <div class="img"><img src="images/part5_displacement.png" width="100%" />
+        <p class="img_caption">displacement mapping</p>
+      </div>
+    </div>
+    <!--Compare the two approaches and resulting renders in your own words. Compare how your the two shaders react to mesh coarseness by modifying the number of vertical and horizontal components in t4-1-renderer.js and t4-2-renderer.js. These are controlled by the 2nd and 3rd arguments to the SphereBufferGeometry constructor. -->
+    <p>
+      <b>Bump mapping</b> modifies surface normals to create the illusion of a textured surface without actually changing the height of any points on the surface (i.e. a sphere remains a perfect sphere). <b>Displacement mapping</b> goes one step further
+      and changes the position of points on a sphere according to the corresponding point in a texture map. This results in a varied surface with peaks and valleys. In my example images, the solid color in the website's images and text creates a deep
+      cut into the surface of the sphere.
+    </p>
+    <!-- Explain what you did in your custom shader! -->
+    <h4> Custom Shader: Meditation Orb </h4>
+    <div class="flex_row">
+      <div class="img"><img src="images/part5_custom.gif" width="100%" />
+        <p class="img_caption">breathe in, breathe out...</p>
+      </div>
+    </div>
+    <p>
+      I created a custom shader (largely based on the example rainbow blob) that used high RGB values to cycle through appealing colors over time. The sphere can be used as a meditation or anti-anxiety tool. It grows and shrinks slowly to encourage slow breathing.
+      Try it out!
+    </p>
+  </div>
+
+  <div class="flex_row subtitle">Spring 2018</div>
+
+</body>
+
+</html>

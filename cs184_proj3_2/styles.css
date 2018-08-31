@@ -1,0 +1,160 @@
+body {
+  padding: 100px 0px;
+  min-width: 460px;
+  max-width: 1024px;
+  margin: 0px auto;
+  text-align: left;
+  font-weight: 300;
+  font-family: 'Open Sans', sans-serif;
+  color: #121212;
+  background-color: #fefefe;
+}
+
+p {
+  font-size: 16px;
+  line-height: 1.5rem;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: 'Muli', sans-serif;
+  letter-spacing: 1px;
+}
+
+h1 {
+  margin: 8px 0px;
+}
+
+h2 {
+  margin: 36px 0px;
+}
+
+h3 {
+  font-size: 22px;
+}
+
+h4 {
+  font-size: 18px;
+}
+
+.unused:before,
+.unused:after {
+  position: relative;
+  border-top: 1px solid #121212;
+  content: '\a0';
+  letter-spacing: 60px;
+  top: 16px;
+  margin: 0px 10px;
+}
+
+a {
+  font-weight: bold;
+  text-decoration: none;
+  color: #e00d4e;
+}
+
+a:hover {
+  background-color: #fff0f5;
+  position: relative;
+  bottom: 2px;
+  border-bottom: solid 1.5px #e00d4e;
+}
+
+code {
+  color: #0c9a9a;
+  padding: 1px 3px;
+  margin-left: -1px;
+}
+code:hover {
+  background-color: #e7f3f3;
+  border-radius: 4px;
+}
+strong,
+b {
+  color: #121212;
+}
+
+strong:hover,
+b:hover {
+  background-color: #efefef;
+  margin-bottom: 1px;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border: 1px solid #a5a5a5;
+  height: 32px;
+  padding: 5px;
+}
+
+h2,
+.subtitle {
+  font-family: 'Muli';
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.dib {
+  display: inline-block;
+}
+
+.img {
+  margin: 8px;
+  padding: 8px;
+  width: 480px;
+  box-shadow: 2px 2px 24px -8px rgba(50, 50, 50, 0.2);
+}
+
+.img_s {
+  width: 200px;
+}
+
+.img_m {
+  min-width: 200px;
+  width: 30%;
+}
+
+.img_left,
+.img_right {
+  width: 400px;
+  margin-right: 24px;
+  box-shadow: 2px 2px 24px -8px rgba(50, 50, 50, 0.2);
+}
+
+.img_caption {
+  margin-top: 8px;
+  margin-bottom: 0px;
+  text-align: center;
+  font-style: italic;
+  font-size: 14px;
+  padding: 4px;
+}
+
+.img_left {
+  float: left;
+}
+
+.img_right {
+  float: right;
+}
+
+.flex_row {
+  display: flex;
+  margin-top: 20px;
+  justify-content: center;
+}
+
+.wrap {
+  flex-wrap: wrap;
+}
+
+.table {
+  margin: auto 10px;
+}
